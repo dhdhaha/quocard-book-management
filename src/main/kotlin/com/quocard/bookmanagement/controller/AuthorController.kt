@@ -1,7 +1,6 @@
 package com.quocard.bookmanagement.controller
 
-import com.quocard.bookmanagement.dto.request.CreateAuthorRequest
-import com.quocard.bookmanagement.dto.request.UpdateAuthorRequest
+import com.quocard.bookmanagement.dto.request.AuthorRequest
 import com.quocard.bookmanagement.dto.response.AuthorResponse
 import com.quocard.bookmanagement.dto.response.BookResponse
 import com.quocard.bookmanagement.service.AuthorService
@@ -23,7 +22,7 @@ class AuthorController(
 ) {
 
     @PostMapping
-    fun createAuthor(@Valid @RequestBody request: CreateAuthorRequest): ResponseEntity<AuthorResponse> {
+    fun createAuthor(@Valid @RequestBody request: AuthorRequest): ResponseEntity<AuthorResponse> {
         val response = authorService.createAuthor(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
@@ -31,7 +30,7 @@ class AuthorController(
     @PutMapping("/{id}")
     fun updateAuthor(
         @PathVariable id: Long,
-        @Valid @RequestBody request: UpdateAuthorRequest,
+        @Valid @RequestBody request: AuthorRequest,
     ): ResponseEntity<AuthorResponse> =
         ResponseEntity.ok(authorService.updateAuthor(id, request))
 

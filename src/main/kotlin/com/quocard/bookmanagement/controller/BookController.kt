@@ -1,7 +1,6 @@
 package com.quocard.bookmanagement.controller
 
-import com.quocard.bookmanagement.dto.request.CreateBookRequest
-import com.quocard.bookmanagement.dto.request.UpdateBookRequest
+import com.quocard.bookmanagement.dto.request.BookRequest
 import com.quocard.bookmanagement.dto.response.BookResponse
 import com.quocard.bookmanagement.service.BookService
 import jakarta.validation.Valid
@@ -22,7 +21,7 @@ class BookController(
 ) {
 
     @PostMapping
-    fun createBook(@Valid @RequestBody request: CreateBookRequest): ResponseEntity<BookResponse> {
+    fun createBook(@Valid @RequestBody request: BookRequest): ResponseEntity<BookResponse> {
         val response = bookService.createBook(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
@@ -30,7 +29,7 @@ class BookController(
     @PutMapping("/{id}")
     fun updateBook(
         @PathVariable id: Long,
-        @Valid @RequestBody request: UpdateBookRequest,
+        @Valid @RequestBody request: BookRequest,
     ): ResponseEntity<BookResponse> =
         ResponseEntity.ok(bookService.updateBook(id, request))
 

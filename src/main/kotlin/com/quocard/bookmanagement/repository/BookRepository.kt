@@ -1,54 +1,10 @@
 package com.quocard.bookmanagement.repository
 
-import com.quocard.bookmanagement.jooq.tables.Authors.AUTHORS
 import com.quocard.bookmanagement.jooq.tables.BookAuthors.BOOK_AUTHORS
 import com.quocard.bookmanagement.jooq.tables.Books.BOOKS
-import com.quocard.bookmanagement.jooq.tables.records.AuthorsRecord
 import com.quocard.bookmanagement.jooq.tables.records.BooksRecord
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
-import java.time.LocalDate
-
-@Repository
-class AuthorRepository(
-    private val dsl: DSLContext,
-) {
-
-    fun insert(name: String, birthDate: LocalDate): Long =
-        dsl.insertInto(AUTHORS)
-            .set(AUTHORS.NAME, name)
-            .set(AUTHORS.BIRTH_DATE, birthDate)
-            .returningResult(AUTHORS.ID)
-            .fetchSingleInto(Long::class.java)
-
-    fun update(id: Long, name: String, birthDate: LocalDate): Boolean =
-        dsl.update(AUTHORS)
-            .set(AUTHORS.NAME, name)
-            .set(AUTHORS.BIRTH_DATE, birthDate)
-            .where(AUTHORS.ID.eq(id))
-            .execute() > 0
-
-    fun findById(id: Long): AuthorsRecord? =
-        dsl.selectFrom(AUTHORS)
-            .where(AUTHORS.ID.eq(id))
-            .fetchOne()
-
-    fun existsById(id: Long): Boolean =
-        dsl.fetchExists(
-            dsl.selectOne()
-                .from(AUTHORS)
-                .where(AUTHORS.ID.eq(id)),
-        )
-
-    fun findAllByIds(ids: Collection<Long>): List<AuthorsRecord> {
-        if (ids.isEmpty()) {
-            return emptyList()
-        }
-        return dsl.selectFrom(AUTHORS)
-            .where(AUTHORS.ID.`in`(ids))
-            .fetch()
-    }
-}
 
 @Repository
 class BookRepository(
@@ -76,6 +32,15 @@ class BookRepository(
             .where(BOOKS.ID.eq(id))
             .fetchOne()
 
+    fun findAllByIds(ids: Collection<Long>): List<BooksRecord> {
+        if (ids.isEmpty()) {
+            return emptyList()
+        }
+        return dsl.selectFrom(BOOKS)
+            .where(BOOKS.ID.`in`(ids))
+            .fetch()
+    }
+
     fun linkAuthors(bookId: Long, authorIds: List<Long>) {
         authorIds.forEach { authorId ->
             dsl.insertInto(BOOK_AUTHORS)
@@ -97,6 +62,20 @@ class BookRepository(
             .from(BOOK_AUTHORS)
             .where(BOOK_AUTHORS.BOOK_ID.eq(bookId))
             .fetch(BOOK_AUTHORS.AUTHOR_ID)
+
+    fun findAuthorIdsGroupedByBookIds(bookIds: Collection<Long>): Map<Long, List<Long>> {
+        if (bookIds.isEmpty()) {
+            return emptyMap()
+        }
+        return dsl.select(BOOK_AUTHORS.BOOK_ID, BOOK_AUTHORS.AUTHOR_ID)
+            .from(BOOK_AUTHORS)
+            .where(BOOK_AUTHORS.BOOK_ID.`in`(bookIds))
+            .fetch()
+            .groupBy(
+                { record -> record.get(BOOK_AUTHORS.BOOK_ID)!! },
+                { record -> record.get(BOOK_AUTHORS.AUTHOR_ID)!! },
+            )
+    }
 
     fun findBookIdsByAuthorId(authorId: Long): List<Long> =
         dsl.select(BOOK_AUTHORS.BOOK_ID)

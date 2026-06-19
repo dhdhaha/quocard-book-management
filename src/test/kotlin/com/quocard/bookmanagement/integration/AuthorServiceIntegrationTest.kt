@@ -1,11 +1,8 @@
 package com.quocard.bookmanagement.integration
 
 import com.quocard.bookmanagement.domain.PublicationStatus
-import com.quocard.bookmanagement.dto.request.CreateAuthorRequest
-import com.quocard.bookmanagement.dto.request.CreateBookRequest
-import com.quocard.bookmanagement.dto.request.UpdateAuthorRequest
-import com.quocard.bookmanagement.dto.request.UpdateBookRequest
-import com.quocard.bookmanagement.exception.BusinessRuleViolationException
+import com.quocard.bookmanagement.dto.request.AuthorRequest
+import com.quocard.bookmanagement.dto.request.BookRequest
 import com.quocard.bookmanagement.exception.NotFoundException
 import com.quocard.bookmanagement.service.AuthorService
 import com.quocard.bookmanagement.service.BookService
@@ -17,9 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDate
 
-/**
- * 著者サービスの統合テスト（実 DB + 実 Repository + 実 Service）
- */
 @SpringBootTest
 @Transactional
 class AuthorServiceIntegrationTest {
@@ -33,13 +27,13 @@ class AuthorServiceIntegrationTest {
     @Test
     fun `著者を登録して更新できる`() {
         val created = authorService.createAuthor(
-            CreateAuthorRequest(name = "山田太郎", birthDate = LocalDate.of(1980, 1, 15)),
+            AuthorRequest(name = "山田太郎", birthDate = LocalDate.of(1980, 1, 15)),
         )
         assertEquals("山田太郎", created.name)
 
         val updated = authorService.updateAuthor(
             created.id,
-            UpdateAuthorRequest(name = "山田次郎", birthDate = LocalDate.of(1980, 1, 15)),
+            AuthorRequest(name = "山田次郎", birthDate = LocalDate.of(1980, 1, 15)),
         )
         assertEquals("山田次郎", updated.name)
     }
@@ -49,7 +43,7 @@ class AuthorServiceIntegrationTest {
         assertThrows(NotFoundException::class.java) {
             authorService.updateAuthor(
                 999_999L,
-                UpdateAuthorRequest(name = "存在しない", birthDate = LocalDate.of(1990, 1, 1)),
+                AuthorRequest(name = "存在しない", birthDate = LocalDate.of(1990, 1, 1)),
             )
         }
     }
@@ -57,14 +51,14 @@ class AuthorServiceIntegrationTest {
     @Test
     fun `著者に紐づく書籍一覧を取得できる`() {
         val author1 = authorService.createAuthor(
-            CreateAuthorRequest(name = "著者A", birthDate = LocalDate.of(1980, 1, 1)),
+            AuthorRequest(name = "著者A", birthDate = LocalDate.of(1980, 1, 1)),
         )
         val author2 = authorService.createAuthor(
-            CreateAuthorRequest(name = "著者B", birthDate = LocalDate.of(1985, 5, 5)),
+            AuthorRequest(name = "著者B", birthDate = LocalDate.of(1985, 5, 5)),
         )
 
         bookService.createBook(
-            CreateBookRequest(
+            BookRequest(
                 title = "共通の本",
                 price = 2000,
                 publicationStatus = PublicationStatus.PUBLISHED,
@@ -72,7 +66,7 @@ class AuthorServiceIntegrationTest {
             ),
         )
         bookService.createBook(
-            CreateBookRequest(
+            BookRequest(
                 title = "著者Aのみの本",
                 price = 1500,
                 publicationStatus = PublicationStatus.UNPUBLISHED,

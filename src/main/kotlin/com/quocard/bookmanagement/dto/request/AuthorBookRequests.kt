@@ -8,24 +8,12 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.PastOrPresent
 import java.time.LocalDate
 
-data class CreateAuthorRequest(
+data class AuthorRequest(
     @field:NotBlank val name: String,
     @field:NotNull @field:PastOrPresent val birthDate: LocalDate,
 )
 
-data class UpdateAuthorRequest(
-    @field:NotBlank val name: String,
-    @field:NotNull @field:PastOrPresent val birthDate: LocalDate,
-)
-
-data class CreateBookRequest(
-    @field:NotBlank val title: String,
-    @field:Min(0) val price: Int,
-    @field:NotNull val publicationStatus: PublicationStatus,
-    @field:NotEmpty val authorIds: List<Long>,
-)
-
-data class UpdateBookRequest(
+data class BookRequest(
     @field:NotBlank val title: String,
     @field:Min(0) val price: Int,
     @field:NotNull val publicationStatus: PublicationStatus,
